@@ -3,7 +3,7 @@ import time
 import json
 from typing import List, Dict, Generator, Tuple
 import requests
-
+import argparse
 
 class LLMClient:
     """Simple client for interacting with LocalAI's API with streaming support"""
@@ -87,28 +87,63 @@ class LLMClient:
                         continue
 
 
+
 def demonstrate_capabilities():
-    """Show basic capabilities of the LLM with streaming responses"""
-    llm = LLMClient(os.getenv("LLM_API_BASE", "http://localhost:8080/v1"))
+    """Show basic capabilities of the LLM with streaming responses
+    
+    Example usage:
+
+    ```
+    python client.py -t "My Example" -c "This is an example of a data mart in SQL." "It has two tables: fact and dimension."
+    ```
+
+    This command will:
+    1. Set the title of the example to "My Example"
+    2. Create a user message with the content:
+    "This is an example of a data mart in SQL. It has two tables: fact and dimension."
+    3. Demonstrate streaming the LLM response for this prompt
+    """
+
+    llm = LLMClient(os.getenv("LLM_API_BASE", "http://localhost:8081/v1"))
 
     print("\nAvailable Models:")
     try:
         models = llm.list_models()
         print(json.dumps(models, indent=2))
     except Exception as e:
-        print(f"Error listing models: {e}")
+        print(f"Error: {e}")
 
-    examples = [
-        {
-            "title": "AI Explanation",
+    # Parse command line arguments
+    parser = argparse.ArgumentParser(description='Add a new example')
+    parser.add_argument('-t', '--title', type=str, help='Title of the example')
+    parser.add_argument('-c', '--content', type=str, nargs='+', help='Content of the example')
+    args = parser.parse_args()
+
+    # Create examples list from the command line when running the script
+    examples = []
+    if args.title and args.content:
+        examples.append({
+            "title": args.title,
             "messages": [
                 {
                     "role": "user",
-                    "content": "Explain what AI is in two sentences",
+                    "content": " ".join(args.content),
                 },
             ],
-        },
-    ]
+        })
+    else:
+        # Default example if no arguments provided
+        examples = [
+            {
+                "title": "SQL Data Mart Explanation",
+                "messages": [
+                    {
+                        "role": "user",
+                        "content": "Explain what a data mart in SQL is and give me an example.",
+                    },
+                ],
+            },
+        ]
 
     for example in examples:
         print(f"\nExample: {example['title']}")
