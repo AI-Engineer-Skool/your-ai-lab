@@ -132,14 +132,14 @@ def demonstrate_capabilities():
             ],
         })
     else:
-        # Default example if no arguments provided
+        # This should never be reached now since we set defaults above
         examples = [
             {
-                "title": "SQL Data Mart Explanation",
+                "title": "AI Explanation",
                 "messages": [
                     {
                         "role": "user",
-                        "content": "Explain what a data mart in SQL is and give me an example.",
+                        "content": "Explain what AI is in two sentences.",
                     },
                 ],
             },
